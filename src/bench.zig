@@ -15,6 +15,7 @@ fn testPermutation(state: [WIDTH]u32) [WIDTH]u32 {
     }
     return ret;
 }
+
 // CPU affinity setting for consistent benchmarks
 fn sched_setaffinity(pid: std.os.linux.pid_t, set: *const std.os.linux.cpu_set_t) !void {
     const size = @sizeOf(std.os.linux.cpu_set_t);

@@ -1,0 +1,10 @@
+.{
+    .name = .poseidon,
+    .fingerprint=0x297715e59b419aab,
+    .version = "0.0.0",
+    .paths = .{
+        "build.zig.zon",
+        "build.zig",
+        "src",
+    },
+}

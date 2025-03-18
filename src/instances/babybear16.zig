@@ -1,6 +1,6 @@
 const std = @import("std");
 const poseidon2 = @import("../poseidon2/poseidon2.zig");
-const babybear = @import("../fields/babybear/montgomery.zig").MontgomeryField;
+pub const babybear = @import("../fields/babybear/montgomery.zig").MontgomeryField;
 
 const WIDTH = 16;
 const EXTERNAL_ROUNDS = 8;

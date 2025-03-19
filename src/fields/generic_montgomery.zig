@@ -11,6 +11,7 @@ pub fn MontgomeryField31(comptime modulus: u32) type {
 
     return struct {
         const Self = @This();
+        pub const PrimeModulus = modulus; 
         pub const FieldElem = u32;
         pub const MontFieldElem = struct {
             value: u32,
@@ -95,8 +96,9 @@ pub fn MontgomeryField31(comptime modulus: u32) type {
         }
 
         pub fn fromU32(x: u32) MontFieldElem {
+            const reduced = x % modulus;
             var fe: MontFieldElem = undefined;
-            Self.toMontgomery(&fe, x);
+            Self.toMontgomery(&fe, reduced);
             return fe;
         }
 

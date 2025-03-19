@@ -16,7 +16,9 @@ pub fn MontgomeryField31(comptime modulus: u32) type {
         pub const MontFieldElem = struct {
             value: u32,
         };
-
+        pub fn getModulus() u32 {
+            return PrimeModulus;
+        }
         pub fn toMontgomery(out: *MontFieldElem, value: FieldElem) void {
             out.* = .{ .value = montReduce(@as(u64, value) * R_square_mod_modulus) };
         }

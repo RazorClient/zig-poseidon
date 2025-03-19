@@ -4,14 +4,12 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-
     const poseidon_module = b.addModule("poseidon", .{
         .root_source_file = b.path("src/poseidon2/poseidon2.zig"),
     });
 
     // Create BabyBear instance module
     const babybear_module = b.addModule("poseidon-babybear", .{
-        
         .root_source_file = b.path("src/instances/babybear16.zig"),
         .imports = &.{
             .{ .name = "poseidon", .module = poseidon_module },
@@ -26,7 +24,7 @@ pub fn build(b: *std.Build) void {
     lib.root_module.addImport("poseidon", poseidon_module);
     lib.root_module.addImport("poseidon-babybear", babybear_module);
     b.installArtifact(lib);
-    
+
     const main_tests = b.addTest(.{
         .root_source_file = .{ .cwd_relative = "src/main.zig" },
         .target = target,
@@ -40,7 +38,7 @@ pub fn build(b: *std.Build) void {
     const bench_exe = b.addExecutable(.{
         .name = "bench",
         .root_source_file = .{ .cwd_relative = "src/bench.zig" },
-        .target=target,
+        .target = target,
         .optimize = optimize,
     });
     const run_bench = b.addRunArtifact(bench_exe);

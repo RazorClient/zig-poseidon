@@ -11,14 +11,16 @@ pub fn MontgomeryField31(comptime modulus: u32) type {
 
     return struct {
         const Self = @This();
-        pub const PrimeModulus = modulus; 
+        pub const PrimeModulus = modulus;
         pub const FieldElem = u32;
         pub const MontFieldElem = struct {
             value: u32,
         };
+
         pub fn getModulus() u32 {
             return PrimeModulus;
         }
+
         pub fn toMontgomery(out: *MontFieldElem, value: FieldElem) void {
             out.* = .{ .value = montReduce(@as(u64, value) * R_square_mod_modulus) };
         }
@@ -107,23 +109,23 @@ pub fn MontgomeryField31(comptime modulus: u32) type {
         pub fn fromU8(x: u8) MontFieldElem {
             return Self.fromU32(@as(u32, x));
         }
-
+        /// Little endian
         pub fn fromBytes(bytes: []const u8) MontFieldElem {
             var value: FieldElem = 0;
-            
+
             // 4 bytes (32 bits) since our field is 31-bit
             const len = @min(bytes.len, 4);
             for (0..len) |i| {
                 value |= @as(FieldElem, bytes[i]) << @intCast(8 * i);
             }
-            
+
             value %= modulus;
-            
+
             var result: MontFieldElem = undefined;
             toMontgomery(&result, value);
             return result;
-            }
-        
+        }
+
         /// Convert a Montgomery field element to a 4-byte array (little-endian).
         pub fn toBytes(self: MontFieldElem, out: *[4]u8) void {
             const normal = Self.toNormal(self);
@@ -179,7 +181,6 @@ pub fn isZero(M: anytype, a: M.MontFieldElem) bool {
     return a.value == 0;
 }
 
-
 test "MontgomeryField31 basic arithmetic tests" {
     // Use a prime modulus: 2^31 - 1 (a Mersenne prime).
     const Modulus = 0x7fffffff; // 2147483647
@@ -188,27 +189,29 @@ test "MontgomeryField31 basic arithmetic tests" {
     // Test conversion from u32 and utility functions.
     const one_elem = one(M);
     const zero_elem = zero(M);
-    std.debug.print("One (normal): {}\n", .{ M.toNormal(one_elem) });
-    std.debug.print("Zero (normal): {}\n", .{ M.toNormal(zero_elem) });
+    std.debug.print("One (normal): {}\n", .{M.toNormal(one_elem)});
+    std.debug.print("Zero (normal): {}\n", .{M.toNormal(zero_elem)});
     try std.testing.expect(equals(M, one_elem, M.fromU32(1)));
     try std.testing.expect(equals(M, zero_elem, M.fromU32(0)));
 
+    const Mod = M.getModulus();
+    std.debug.print("{}\n", .{Mod});
     // Test addition: 1 + 1 = 2.
     var sum: M.MontFieldElem = undefined;
     M.add(&sum, one_elem, one_elem);
-    std.debug.print("1 + 1 = {}\n", .{ M.toNormal(sum) });
+    std.debug.print("1 + 1 = {}\n", .{M.toNormal(sum)});
     try std.testing.expect(equals(M, sum, M.fromU32(2)));
 
     // Test subtraction: 2 - 1 = 1.
     var diff: M.MontFieldElem = undefined;
     M.sub(&diff, sum, one_elem);
-    std.debug.print("2 - 1 = {}\n", .{ M.toNormal(diff) });
+    std.debug.print("2 - 1 = {}\n", .{M.toNormal(diff)});
     try std.testing.expect(equals(M, diff, one_elem));
 
     // Test negation: -1 should equal modulus - 1 (in normal representation).
     var neg: M.MontFieldElem = undefined;
     M.neg(&neg, one_elem);
-    std.debug.print("Negation of 1 (normal): {}\n", .{ M.toNormal(neg) });
+    std.debug.print("Negation of 1 (normal): {}\n", .{M.toNormal(neg)});
     try std.testing.expect(M.toNormal(neg) == (Modulus - 1));
 
     // Test multiplication: 2 * 3 = 6.
@@ -216,13 +219,13 @@ test "MontgomeryField31 basic arithmetic tests" {
     const three = M.fromU32(3);
     var six: M.MontFieldElem = undefined;
     M.mul(&six, two, three);
-    std.debug.print("2 * 3 = {}\n", .{ M.toNormal(six) });
+    std.debug.print("2 * 3 = {}\n", .{M.toNormal(six)});
     try std.testing.expect(M.toNormal(six) == 6);
 
     // Test exponentiation: 2^10 = 1024.
     var exp: M.MontFieldElem = undefined;
     M.pow(&exp, two, 10);
-    std.debug.print("2^10 = {}\n", .{ M.toNormal(exp) });
+    std.debug.print("2^10 = {}\n", .{M.toNormal(exp)});
     try std.testing.expect(M.toNormal(exp) == 1024);
 
     // Test inverse: 3 * inverse(3) should equal 1.
@@ -230,7 +233,7 @@ test "MontgomeryField31 basic arithmetic tests" {
     M.inverse(&inv, three);
     var check: M.MontFieldElem = undefined;
     M.mul(&check, three, inv);
-    std.debug.print("3 * inverse(3) = {}\n", .{ M.toNormal(check) });
+    std.debug.print("3 * inverse(3) = {}\n", .{M.toNormal(check)});
     try std.testing.expect(M.toNormal(check) == 1);
 }
 
@@ -241,9 +244,9 @@ test "MontgomeryField31 conversion to/from bytes" {
     var b: [4]u8 = undefined;
     const five = M.fromU32(5);
     M.toBytes(five, &b);
-    std.debug.print("Bytes for 5: {x}\n", .{ b });
+    std.debug.print("Bytes for 5: {x}\n", .{b});
     const five_from_bytes = M.fromBytes(b[0..]);
-    std.debug.print("5 recovered from bytes: {}\n", .{ M.toNormal(five_from_bytes) });
+    std.debug.print("5 recovered from bytes: {}\n", .{M.toNormal(five_from_bytes)});
     try std.testing.expect(M.toNormal(five_from_bytes) == 5);
 }
 
@@ -254,8 +257,8 @@ test "MontgomeryField31 conversion to/from bytes 2" {
     var b: [4]u8 = undefined;
     const value = M.fromU32(214748360);
     M.toBytes(value, &b);
-    std.debug.print("Bytes : {x}\n", .{ b });
+    std.debug.print("Bytes : {x}\n", .{b});
     const five_from_bytes = M.fromBytes(b[0..]);
-    std.debug.print("recovered from bytes: {}\n", .{ M.toNormal(five_from_bytes) });
+    std.debug.print("recovered from bytes: {}\n", .{M.toNormal(five_from_bytes)});
     try std.testing.expect(M.toNormal(five_from_bytes) == 214748360);
 }

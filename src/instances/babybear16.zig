@@ -276,9 +276,9 @@ test "finite field implementation coherency" {
         var input_state: [WIDTH]u32 = undefined;
 
         for (0..WIDTH) |index| {
-        // if (i % 2000 == 0) {
-        //     std.debug.print("Test progress: {d}/10000\n", .{i});
-        // }
+            // if (i % 2000 == 0) {
+            //     std.debug.print("Test progress: {d}/10000\n", .{i});
+            // }
             input_state[index] = @truncate(rand.next());
         }
         try std.testing.expectEqual(testPermutation(Poseidon2BabyBearNaive, input_state), testPermutation(Poseidon2BabyBearOptimized, input_state));
